@@ -9,6 +9,7 @@ const urlDatabase = {
 };
 
 app.set("view engine","ejs");
+app.use(express.urlencoded({extended : true}));
 
 app.get("/", (req, res)=>{
   res.send("Hello");
@@ -31,9 +32,24 @@ app.get("/urls",(req,res)=>{
   res.render("urls_index", templateVars);
 })
 
+app.get("/urls/new",(req,res)=>{
+  res.render("urls_new");
+})
+
 app.get("/urls/:id",(req,res)=>{
   const id = req.params.id;
   const templateVars = {id,longURL :urlDatabase[id]};
   res.render("urls_show", templateVars);
 })
+
+app.post("/urls",(req,res)=>{
+  urlDatabase[generateRandomString()] = req.body.longURL;
+  res.redirect("/urls");
+})
+
+function generateRandomString() {
+  return Math.random().toString(36).slice(2,8);
+}
+
+
 
