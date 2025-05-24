@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/SimarpreetSidhu/tinyapp/issues"
   },
-  "homepage": "https://github.com/SimarpreetSidhu/tinyapp#readme"
+  "homepage": "https://github.com/SimarpreetSidhu/tinyapp#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
