@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/SimarpreetSidhu/tinyapp#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^4.17.1"
   }
 }
