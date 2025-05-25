@@ -60,6 +60,12 @@ app.post("/urls/:id/delete",(req,res)=>{
   delete urlDatabase[id];
   return res.redirect(`/urls`);
 });
+app.post("/urls/:id",(req,res)=>{
+  const id = req.params.id;
+  const longURL = req.body.longURL;
+  urlDatabase[id] = longURL;
+  return res.redirect(`/urls`);
+});
 
 
 function generateRandomString() {
