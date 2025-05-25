@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require('cookie-parser')
 const app = express();
 
 const PORT = 8080;
@@ -10,6 +11,7 @@ const urlDatabase = {
 
 app.set("view engine","ejs");
 app.use(express.urlencoded({extended : true}));
+app.use(cookieParser());
 
 app.get("/", (req, res)=>{
   res.send("Hello");
@@ -27,8 +29,16 @@ app.get("/hello",(req,res)=>{
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+app.use((req, res, next) => {
+  res.locals.username = req.cookies.username || null;
+  next();
+});
+
 app.get("/urls",(req,res)=>{
-  const templateVars = {urls:urlDatabase};
+  const username = req.cookies.username;
+  const templateVars = {
+    username,
+    urls:urlDatabase};
   res.render("urls_index", templateVars);
 });
 
