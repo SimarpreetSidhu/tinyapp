@@ -30,17 +30,17 @@ app.get("/hello",(req,res)=>{
 app.get("/urls",(req,res)=>{
   const templateVars = {urls:urlDatabase};
   res.render("urls_index", templateVars);
-})
+});
 
 app.get("/urls/new",(req,res)=>{
   res.render("urls_new");
-})
+});
 
 app.get("/urls/:id",(req,res)=>{
   const id = req.params.id;
   const templateVars = {id,longURL :urlDatabase[id]};
   res.render("urls_show", templateVars);
-})
+});
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
@@ -56,10 +56,11 @@ app.post("/urls",(req,res)=>{
 });
 
 app.post("/urls/:id/delete",(req,res)=>{
-  const id = req.params.id
+  const id = req.params.id;
   delete urlDatabase[id];
   return res.redirect(`/urls`);
 });
+
 app.post("/urls/:id",(req,res)=>{
   const id = req.params.id;
   const longURL = req.body.longURL;
@@ -67,10 +68,9 @@ app.post("/urls/:id",(req,res)=>{
   return res.redirect(`/urls`);
 });
 
-
-function generateRandomString() {
+const generateRandomString = function() {
   return Math.random().toString(36).slice(2,8);
-}
+};
 
 
 
