@@ -58,7 +58,6 @@ app.post("/urls",(req,res)=>{
 app.post("/urls/:id/delete",(req,res)=>{
   const id = req.params.id
   delete urlDatabase[id];
-  console.log(urlDatabase);
   return res.redirect(`/urls`);
 });
 
