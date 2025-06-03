@@ -90,6 +90,12 @@ app.post("/logout",(req,res)=>{
   res.redirect('/urls');
 });
 
+// GET handler for the /register route
+
+app.get("/register",(req,res)=>{
+  res.render("register");
+})
+
 const generateRandomString = function() {
   return Math.random().toString(36).slice(2,8);
 };
