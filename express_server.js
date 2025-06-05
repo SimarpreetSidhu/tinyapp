@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require('cookie-parser')
 const app = express();
+const userLookUp = require("./helpers/userLookUp");
 
 const PORT = 8080;
 
@@ -95,15 +96,32 @@ app.post("/logout",(req,res)=>{
 // GET handler for the /register route
 
 app.get("/register",(req,res)=>{
-  res.render("register");
+  res.render("register",{ error : null});
 })
 
 // POST handler for the /register route
 
 app.post("/register",(req,res)=>{
-  const id = generateRandomString();
+ 
   const email = req.body.email;
   const password = req.body.password;
+
+  if( !email || !password) {
+    return res
+            .status(400)
+            .render("register",{error: "Please enter email and password to log in"});
+  }
+
+  const doesUserExist = userLookUp(users,email);
+
+  if (doesUserExist) {
+    return res
+           .status(400)
+           .render("register",{error: "User already exists"});
+  }
+
+  const id = generateRandomString();
+  
   res.cookie("user_id", id);
 
   users[id] = {
@@ -111,8 +129,8 @@ app.post("/register",(req,res)=>{
     email,
     password
   }
-  console.log(users);
   res.redirect('/urls');
+
 });
 
 const generateRandomString = function() {
