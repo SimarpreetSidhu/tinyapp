@@ -84,9 +84,9 @@ app.post("/urls/:id",(req,res)=>{
   return res.redirect(`/urls`);
 });
 
-app.post("/login",(req,res)=>{
-  res.redirect(`/urls`);
-});
+// app.post("/login",(req,res)=>{
+//   res.redirect(`/urls`);
+// });
 
 app.post("/logout",(req,res)=>{
   res.clearCookie("user_id");
@@ -97,6 +97,12 @@ app.post("/logout",(req,res)=>{
 
 app.get("/register",(req,res)=>{
   res.render("register",{ error : null});
+});
+
+// GET handler for the /login route
+
+app.get("/login",(req,res)=>{
+  res.render("login",{ error : null});
 })
 
 // POST handler for the /register route
