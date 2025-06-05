@@ -6,6 +6,9 @@
   <title>User Registration Form</title>
 </head>
 <body>
+  <% if (error) { %>
+    <p style = 'color: red;'><%= error %></p>
+  <% } %>
 
   <form class="form-inline" action="/register" method="POST">
         <div class="form-group mb-2">
@@ -16,7 +19,7 @@
             name="email"
             placeholder="email"
             style="width: 300px; margin: 1em"
-            required
+            
           />
         </div>
         <div class="form-group mb-2"></div>
@@ -27,7 +30,7 @@
             name="password"
             placeholder="password"
             style="width: 300px; margin: 1em"
-            required
+            
           />
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
