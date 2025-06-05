@@ -16,26 +16,28 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <a class="nav-item nav-link" href="/register">User Registration</a>
+        <% if (user) { %>
+              <!-- Logged in: Show logout and username -->
+          <form class="form-inline ml-auto" action="/logout" method="POST">
+            <label class="text-white mr-2">Logged in as: <%= user.email%></label>
+            <button type="submit" class="btn btn-primary">Logout</button>
+          </form>
+        <% } else { %>
+          <a class="nav-item nav-link" href="/login">Login</a>
+          <!-- Not logged in: Show login form -->
+          <form class="form-inline ml-auto" action="/login" method="POST">
+            <input
+              class="form-control mr-2"
+              type="text"
+              name="username"
+              placeholder="Username"
+              required
+            />
+            <button type="submit" class="btn btn-outline-light">Login</button>
+          </form>
+       <% } %>
       </div>
     </div>
-          <% if (user) { %>
-      <!-- Logged in: Show logout and username -->
-      <form class="form-inline ml-auto" action="/logout" method="POST">
-        <label class="text-white mr-2">Logged in as: <%= user.email%></label>
-        <button type="submit" class="btn btn-primary">Logout</button>
-      </form>
-    <% } else { %>
-      <!-- Not logged in: Show login form -->
-      <form class="form-inline ml-auto" action="/login" method="POST">
-        <input
-          class="form-control mr-2"
-          type="text"
-          name="username"
-          placeholder="Username"
-          required
-        />
-        <button type="submit" class="btn btn-outline-light">Login</button>
-      </form>
-    <% } %>
   </nav>
 </header>
