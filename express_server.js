@@ -42,6 +42,18 @@ app.get("/hello",(req,res)=>{
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// GET handler for the /login route
+
+app.get("/login",(req,res)=>{
+  res.render("login",{ error : null});
+});
+
+// GET handler for the /register route
+
+app.get("/register",(req,res)=>{
+  res.render("register",{ error : null});
+});
+
 app.get("/urls",(req,res)=> {
   const templateVars = {
     urls:urlDatabase};
@@ -84,26 +96,39 @@ app.post("/urls/:id",(req,res)=>{
   return res.redirect(`/urls`);
 });
 
-// app.post("/login",(req,res)=>{
-//   res.redirect(`/urls`);
-// });
+// POST handler for the /login route
 
-app.post("/logout",(req,res)=>{
+app.post("/login",(req,res) => {
+
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const userExist = userLookUp(users,email);
+
+  if (userExist) {
+    if (userExist.password === password) {
+      const id = userExist.id;
+      console.log(`User id is ${id}`);
+      res.cookie("user_id", id);
+      res.redirect(`/urls`);
+    } else {
+      return res
+           .status(403)
+           .render("login",{error: "Password is incorrect"});
+    }
+  } else {
+      return res
+           .status(403)
+           .render("login",{error: "User doesn't exists"});
+  } 
+});
+
+// POST handler for the /logout route
+
+app.post("/logout",(req,res) => {
   res.clearCookie("user_id");
-  res.redirect('/urls');
+  res.redirect('/login');
 });
-
-// GET handler for the /register route
-
-app.get("/register",(req,res)=>{
-  res.render("register",{ error : null});
-});
-
-// GET handler for the /login route
-
-app.get("/login",(req,res)=>{
-  res.render("login",{ error : null});
-})
 
 // POST handler for the /register route
 
@@ -115,7 +140,7 @@ app.post("/register",(req,res)=>{
   if( !email || !password) {
     return res
             .status(400)
-            .render("register",{error: "Please enter email and password to log in"});
+            .render("register",{error: "Please enter email and password to register"});
   }
 
   const doesUserExist = userLookUp(users,email);
