@@ -6,8 +6,14 @@ const userLookUp = require("./helpers/userLookUp");
 const PORT = 8080;
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 // users object to store and access the users in the app
@@ -71,14 +77,14 @@ app.get("/urls/new",(req,res) => {
 
 app.get("/urls/:id",(req,res)=>{
   const id = req.params.id;
-  const templateVars = {id,longURL :urlDatabase[id]};
+  const templateVars = {id,longURL :urlDatabase[id]["longURL"]};
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   if(urlDatabase.hasOwnProperty(id)){
-   const longURL = urlDatabase[id];
+   const longURL = urlDatabase[id].longURL;
    res.redirect(longURL);
   } else{
     return res
@@ -92,8 +98,9 @@ app.post("/urls",(req,res)=>{
   const user_id = req.cookies.user_id;
   if (user_id) {
     const id = generateRandomString();
+    console.log(req.body)
     const longURL = req.body.longURL;
-    urlDatabase[id] = longURL;
+    urlDatabase[id]= {longURL, userID: id};
     return res.redirect(`/urls/${id}`);
   } else {
     return res
@@ -112,7 +119,7 @@ app.post("/urls/:id/delete",(req,res)=>{
 app.post("/urls/:id",(req,res)=>{
   const id = req.params.id;
   const longURL = req.body.longURL;
-  urlDatabase[id] = longURL;
+  urlDatabase[id].longURL = longURL;
   return res.redirect(`/urls`);
 });
 
