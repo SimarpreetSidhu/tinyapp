@@ -50,7 +50,7 @@ app.get("/login",(req,res)=>{
 
 // GET handler for the /register route
 
-app.get("/register",(req,res)=>{
+app.get("/register",(req,res) => {
   res.render("register",{ error : null});
 });
 
@@ -60,8 +60,13 @@ app.get("/urls",(req,res)=> {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new",(req,res)=>{
-  res.render("urls_new");
+app.get("/urls/new",(req,res) => {
+  const user_id = req.cookies.user_id;
+  if (user_id) {
+    return res.render("urls_new");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls/:id",(req,res)=>{
@@ -72,15 +77,30 @@ app.get("/urls/:id",(req,res)=>{
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
-  const longURL = urlDatabase[id];
-  res.redirect(longURL);
+  if(urlDatabase.hasOwnProperty(id)){
+   const longURL = urlDatabase[id];
+   res.redirect(longURL);
+  } else{
+    return res
+              .status(401)
+              .send("<h1>Error</h1><p>The short URL you are trying to access doesn't exist</p>");
+  }
+  
 });
 
 app.post("/urls",(req,res)=>{
-  const id = generateRandomString();
-  const longURL = req.body.longURL;
-  urlDatabase[id] = longURL;
-  return res.redirect(`/urls/${id}`);
+  const user_id = req.cookies.user_id;
+  if (user_id) {
+    const id = generateRandomString();
+    const longURL = req.body.longURL;
+    urlDatabase[id] = longURL;
+    return res.redirect(`/urls/${id}`);
+  } else {
+    return res
+              .status(401)
+              .send("<h1>Error</h1><p>You need to log in to create new short URLs.</p>");
+  }
+  
 });
 
 app.post("/urls/:id/delete",(req,res)=>{
@@ -108,7 +128,6 @@ app.post("/login",(req,res) => {
   if (userExist) {
     if (userExist.password === password) {
       const id = userExist.id;
-      console.log(`User id is ${id}`);
       res.cookie("user_id", id);
       res.redirect(`/urls`);
     } else {
