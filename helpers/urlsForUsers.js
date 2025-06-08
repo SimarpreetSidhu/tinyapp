@@ -1,12 +1,14 @@
 const urlsForUser = function(obj,id) {
+  const filteredURLs = {};
   for (let key in obj) {
     if (obj[key].hasOwnProperty('userID')) {
-      if (obj[key].userID === id) {
-        return obj[key].longURL;
+      const urlEntry = obj[key];
+      if (urlEntry.userID === id) {
+        filteredURLs[key] = urlEntry;
       }
     }
   }
-  return null;
+  return filteredURLs;
 
 };
 

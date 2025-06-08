@@ -76,16 +76,18 @@ app.get("/urls",(req,res)=> {
   if (user_id) {
 
     const urlsForLoggedInUser = urlsForUser(urlDatabase,user_id);
-    
-    if (urlsForLoggedInUser !== null) {
-      const templateVars = {
-        urls:urlDatabase
+    const templateVars = {
+        urls:urlsForLoggedInUser,
+        error: null
       };
+    
+    if (Object.keys(urlsForLoggedInUser).length > 0) {
+      
       return res.render("urls_index", templateVars);
     } else {
-      return res
-        .status(NOT_FOUND)
-        .send(NOT_FOUND_STATUS_CODE);
+      templateVars.urls = {};
+      templateVars.error = "No URLs found yet. Create one!";
+      return res.render("urls_index",templateVars)
     }
   } else {
     return res
@@ -121,8 +123,8 @@ app.post("/urls/:id",(req,res)=>{
 
     } else {
       return res
-        .status(NOT_FOUND)
-        .send(NOT_FOUND_STATUS_CODE);
+        .status(NOT_FOUND_STATUS_CODE)
+        .send(NOT_FOUND);
     }
     
     
@@ -151,8 +153,8 @@ app.get("/urls/:id",(req,res)=>{
 
     } else {
       return res
-        .status(NOT_FOUND)
-        .send(NOT_FOUND_STATUS_CODE);
+        .status(NOT_FOUND_STATUS_CODE)
+        .send(NOT_FOUND);
     }
     
   } else {
