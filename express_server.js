@@ -1,12 +1,20 @@
 const express = require("express");
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const app = express();
 const userLookUp = require("./helpers/userLookUp");
 const urlsForUser = require("./helpers/urlsForUsers");
-const e = require("express");
+const {
+  FORBIDDEN,
+  FORBIDDEN_STATUS_CODE,
+  NOT_FOUND,
+  NOT_FOUND_STATUS_CODE,
+  PORT,
+  UNAUTHORIZED_USER,
+  UNAUTHORIZED_USER_STATUS_CODE,
+} = require('./constants');
 
 
-const PORT = 8080;
+const port = PORT;
 
 const urlDatabase = {
   b6UTxQ: {
@@ -31,8 +39,8 @@ app.get("/", (req, res)=>{
   res.send("Hello");
 });
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}!`);
+app.listen(port, () => {
+  console.log(`App listening on port ${port}!`);
 });
 
 // middleware to make current user object available in all templates
@@ -76,13 +84,13 @@ app.get("/urls",(req,res)=> {
       return res.render("urls_index", templateVars);
     } else {
       return res
-                .status(401)
-                .send("<h1>Error</h1><p>No URLs for this user</p>");
-      }
+        .status(NOT_FOUND)
+        .send(NOT_FOUND_STATUS_CODE);
+    }
   } else {
     return res
-              .status(401)
-              .send("<h1>Error</h1><p>You need to either log in or register to access URLs.</p>");
+      .status(UNAUTHORIZED_USER_STATUS_CODE)
+      .send(UNAUTHORIZED_USER);
   }
   
 });
@@ -107,21 +115,21 @@ app.post("/urls/:id",(req,res)=>{
         return res.redirect(`/urls`);
       } else {
         return res
-                .status(401)
-                .send("<h1>Error</h1><p>You can only acess URL's created by you.</p>");
-      } 
+          .status(FORBIDDEN_STATUS_CODE)
+          .send(FORBIDDEN);
+      }
 
     } else {
       return res
-                .status(401)
-                .send("<h1>Error</h1><p>Not a valid id</p>");
+        .status(NOT_FOUND)
+        .send(NOT_FOUND_STATUS_CODE);
     }
     
     
   } else {
     return res
-              .status(401)
-              .send("<h1>Error</h1><p>You need to either log in or register to perform the requested action.</p>");
+      .status(UNAUTHORIZED_USER_STATUS_CODE)
+      .send(UNAUTHORIZED_USER);
   }
   
 });
@@ -131,39 +139,39 @@ app.get("/urls/:id",(req,res)=>{
   if (user_id) {
     const id = req.params.id;
     if (urlDatabase[id] !== undefined) {
-      if(user_id === urlDatabase[id]["userID"]) {
+      if (user_id === urlDatabase[id]["userID"]) {
       
-      const templateVars = {id,longURL :urlDatabase[id]["longURL"]};
-      res.render("urls_show", templateVars);
-    } else {
-      return res
-              .status(401)
-              .send("<h1>Error</h1><p>You can only access URLs created by you.</p>");
-    } 
+        const templateVars = {id,longURL :urlDatabase[id]["longURL"]};
+        res.render("urls_show", templateVars);
+      } else {
+        return res
+          .status(FORBIDDEN_STATUS_CODE)
+          .send(FORBIDDEN);
+      }
 
     } else {
       return res
-                .status(401)
-                .send("<h1>Error</h1><p>Not a valid id</p>");
+        .status(NOT_FOUND)
+        .send(NOT_FOUND_STATUS_CODE);
     }
     
   } else {
     return res
-              .status(401)
-              .send("<h1>Error</h1><p>You need to either log in or register to access the requested URL.</p>");
+      .status(UNAUTHORIZED_USER_STATUS_CODE)
+      .send(UNAUTHORIZED_USER);
   }
   
 });
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
-  if(urlDatabase.hasOwnProperty(id)){
-   const longURL = urlDatabase[id].longURL;
-   res.redirect(longURL);
-  } else{
+  if (urlDatabase.hasOwnProperty(id)) {
+    const longURL = urlDatabase[id].longURL;
+    res.redirect(longURL);
+  } else {
     return res
-              .status(401)
-              .send("<h1>Error</h1><p>The short URL you are trying to access doesn't exist</p>");
+      .status(NOT_FOUND_STATUS_CODE)
+      .send(NOT_FOUND);
   }
   
 });
@@ -172,14 +180,14 @@ app.post("/urls",(req,res)=>{
   const user_id = req.cookies.user_id;
   if (user_id) {
     const id = generateRandomString();
-    console.log(req.body)
+    console.log(req.body);
     const longURL = req.body.longURL;
-    urlDatabase[id]= {longURL, userID: user_id};
+    urlDatabase[id] = {longURL, userID: user_id};
     return res.redirect(`/urls/${id}`);
   } else {
     return res
-              .status(401)
-              .send("<h1>Error</h1><p>You need to log in to create new short URLs.</p>");
+      .status(UNAUTHORIZED_USER_STATUS_CODE)
+      .send(UNAUTHORIZED_USER);
   }
   
 });
@@ -188,20 +196,20 @@ app.post("/urls/:id/delete",(req,res)=>{
   const user_id = req.cookies.user_id;
   if (user_id) {
     const id = req.params.id;
-    if(user_id === urlDatabase[id].userID) {
+    if (user_id === urlDatabase[id].userID) {
       delete urlDatabase[id];
-      return res.redirect('/urls/new') // temporary , will change the logic
+      return res.redirect('/urls');
     } else {
       return res
-              .status(401)
-              .send("<h1>Error</h1><p>You can only delete URLs created by you.</p>");
+        .status(FORBIDDEN_STATUS_CODE)
+        .send(FORBIDDEN);
     }
     
     
   } else {
     return res
-              .status(401)
-              .send("<h1>Error</h1><p>You need to either log in or register to perform the requested action.</p>");
+      .status(UNAUTHORIZED_USER_STATUS_CODE)
+      .send(UNAUTHORIZED_USER);
   }
   
 });
@@ -222,14 +230,14 @@ app.post("/login",(req,res) => {
       res.redirect(`/urls`);
     } else {
       return res
-           .status(403)
-           .render("login",{error: "Password is incorrect"});
+        .status(403)
+        .render("login",{error: "Password is incorrect"});
     }
   } else {
-      return res
-           .status(403)
-           .render("login",{error: "User doesn't exists"});
-  } 
+    return res
+      .status(403)
+      .render("login",{error: "User doesn't exists"});
+  }
 });
 
 // POST handler for the /logout route
@@ -246,18 +254,18 @@ app.post("/register",(req,res)=>{
   const email = req.body.email;
   const password = req.body.password;
 
-  if( !email || !password) {
+  if (!email || !password) {
     return res
-            .status(400)
-            .render("register",{error: "Please enter email and password to register"});
+      .status(400)
+      .render("register",{error: "Please enter email and password to register"});
   }
 
   const doesUserExist = userLookUp(users,email);
 
   if (doesUserExist) {
     return res
-           .status(400)
-           .render("register",{error: "User already exists"});
+      .status(400)
+      .render("register",{error: "User already exists"});
   }
 
   const id = generateRandomString();
