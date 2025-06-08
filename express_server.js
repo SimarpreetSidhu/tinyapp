@@ -2,6 +2,9 @@ const express = require("express");
 const cookieParser = require('cookie-parser')
 const app = express();
 const userLookUp = require("./helpers/userLookUp");
+const urlsForUser = require("./helpers/urlsForUsers");
+const e = require("express");
+
 
 const PORT = 8080;
 
@@ -61,9 +64,27 @@ app.get("/register",(req,res) => {
 });
 
 app.get("/urls",(req,res)=> {
-  const templateVars = {
-    urls:urlDatabase};
-  res.render("urls_index", templateVars);
+  const user_id = req.cookies.user_id;
+  if (user_id) {
+
+    const urlsForLoggedInUser = urlsForUser(urlDatabase,user_id);
+    
+    if (urlsForLoggedInUser !== null) {
+      const templateVars = {
+        urls:urlDatabase
+      };
+      return res.render("urls_index", templateVars);
+    } else {
+      return res
+                .status(401)
+                .send("<h1>Error</h1><p>No URLs for this user</p>");
+      }
+  } else {
+    return res
+              .status(401)
+              .send("<h1>Error</h1><p>You need to either log in or register to access URLs.</p>");
+  }
+  
 });
 
 app.get("/urls/new",(req,res) => {
@@ -75,10 +96,63 @@ app.get("/urls/new",(req,res) => {
   }
 });
 
+app.post("/urls/:id",(req,res)=>{
+  const user_id = req.cookies.user_id;
+  if (user_id) {
+    const id = req.params.id;
+    if (urlDatabase[id] !== undefined) {
+      if (user_id === urlDatabase[id]["userID"]) {
+        const longURL = req.body.longURL;
+        urlDatabase[id].longURL = longURL;
+        return res.redirect(`/urls`);
+      } else {
+        return res
+                .status(401)
+                .send("<h1>Error</h1><p>You can only acess URL's created by you.</p>");
+      } 
+
+    } else {
+      return res
+                .status(401)
+                .send("<h1>Error</h1><p>Not a valid id</p>");
+    }
+    
+    
+  } else {
+    return res
+              .status(401)
+              .send("<h1>Error</h1><p>You need to either log in or register to perform the requested action.</p>");
+  }
+  
+});
+
 app.get("/urls/:id",(req,res)=>{
-  const id = req.params.id;
-  const templateVars = {id,longURL :urlDatabase[id]["longURL"]};
-  res.render("urls_show", templateVars);
+  const user_id = req.cookies.user_id;
+  if (user_id) {
+    const id = req.params.id;
+    if (urlDatabase[id] !== undefined) {
+      if(user_id === urlDatabase[id]["userID"]) {
+      
+      const templateVars = {id,longURL :urlDatabase[id]["longURL"]};
+      res.render("urls_show", templateVars);
+    } else {
+      return res
+              .status(401)
+              .send("<h1>Error</h1><p>You can only access URLs created by you.</p>");
+    } 
+
+    } else {
+      return res
+                .status(401)
+                .send("<h1>Error</h1><p>Not a valid id</p>");
+    }
+    
+  } else {
+    return res
+              .status(401)
+              .send("<h1>Error</h1><p>You need to either log in or register to access the requested URL.</p>");
+  }
+  
 });
 
 app.get("/u/:id", (req, res) => {
@@ -100,7 +174,7 @@ app.post("/urls",(req,res)=>{
     const id = generateRandomString();
     console.log(req.body)
     const longURL = req.body.longURL;
-    urlDatabase[id]= {longURL, userID: id};
+    urlDatabase[id]= {longURL, userID: user_id};
     return res.redirect(`/urls/${id}`);
   } else {
     return res
@@ -111,16 +185,25 @@ app.post("/urls",(req,res)=>{
 });
 
 app.post("/urls/:id/delete",(req,res)=>{
-  const id = req.params.id;
-  delete urlDatabase[id];
-  return res.redirect(`/urls`);
-});
-
-app.post("/urls/:id",(req,res)=>{
-  const id = req.params.id;
-  const longURL = req.body.longURL;
-  urlDatabase[id].longURL = longURL;
-  return res.redirect(`/urls`);
+  const user_id = req.cookies.user_id;
+  if (user_id) {
+    const id = req.params.id;
+    if(user_id === urlDatabase[id].userID) {
+      delete urlDatabase[id];
+      return res.redirect('/urls/new') // temporary , will change the logic
+    } else {
+      return res
+              .status(401)
+              .send("<h1>Error</h1><p>You can only delete URLs created by you.</p>");
+    }
+    
+    
+  } else {
+    return res
+              .status(401)
+              .send("<h1>Error</h1><p>You need to either log in or register to perform the requested action.</p>");
+  }
+  
 });
 
 // POST handler for the /login route
@@ -185,7 +268,7 @@ app.post("/register",(req,res)=>{
     id,
     email,
     password
-  }
+  };
   res.redirect('/urls');
 
 });
@@ -193,6 +276,8 @@ app.post("/register",(req,res)=>{
 const generateRandomString = function() {
   return Math.random().toString(36).slice(2,8);
 };
+
+
 
 
 
