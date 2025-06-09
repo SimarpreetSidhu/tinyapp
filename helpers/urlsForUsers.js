@@ -12,4 +12,4 @@ const urlsForUser = function(obj,id) {
 
 };
 
-module.exports = { urlsForUser };
+module.exports = urlsForUser ;
