@@ -223,14 +223,12 @@ app.post("/login",(req,res) => {
 
   const email = req.body.email;
   const password = req.body.password;
-  const hashedPassword  = bcrypt.hashSync(password, 10);
-
+  
   const userExist = userLookUp(users,email);
   const doesPasswordMatch = bcrypt.compareSync(password, hashedPassword); 
 
   if (userExist) {
     if (doesPasswordMatch) {
-      if (userExist.password === password) {
       const id = userExist.id;
       res.cookie("user_id", id);
       res.redirect(`/urls`);
@@ -238,7 +236,6 @@ app.post("/login",(req,res) => {
       return res
         .status(403)
         .render("login",{error: "Password is incorrect"});
-      } 
     }
     
   } else {
