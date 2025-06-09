@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const userLookUp = require("./helpers/userLookUp");
 const urlsForUser = require("./helpers/urlsForUsers");
+const bcrypt = require("bcryptjs");
 const {
   FORBIDDEN,
   FORBIDDEN_STATUS_CODE,
@@ -222,11 +223,14 @@ app.post("/login",(req,res) => {
 
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword  = bcrypt.hashSync(password, 10);
 
   const userExist = userLookUp(users,email);
+  const doesPasswordMatch = bcrypt.compareSync(password, hashedPassword); 
 
   if (userExist) {
-    if (userExist.password === password) {
+    if (doesPasswordMatch) {
+      if (userExist.password === password) {
       const id = userExist.id;
       res.cookie("user_id", id);
       res.redirect(`/urls`);
@@ -234,7 +238,9 @@ app.post("/login",(req,res) => {
       return res
         .status(403)
         .render("login",{error: "Password is incorrect"});
+      } 
     }
+    
   } else {
     return res
       .status(403)
@@ -255,8 +261,9 @@ app.post("/register",(req,res)=>{
  
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword  = bcrypt.hashSync(password, 10);
 
-  if (!email || !password) {
+  if (!email || !hashedPassword) {
     return res
       .status(400)
       .render("register",{error: "Please enter email and password to register"});
