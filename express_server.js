@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
-const userLookUp = require("./helpers/userLookUp");
+const getUserByEmail = require("./helpers/getUserByEmail");
 const urlsForUser = require("./helpers/urlsForUsers");
 const bcrypt = require("bcryptjs");
 const cookieSession = require('cookie-session');
@@ -233,7 +233,7 @@ app.post("/login",(req,res) => {
   const password = req.body.password;
   const hashedPassword  = bcrypt.hashSync(password, 10);
   
-  const userExist = userLookUp(users,email);
+  const userExist = getUserByEmail(users,email);
   const doesPasswordMatch = bcrypt.compareSync(password, hashedPassword);
 
   if (userExist) {
@@ -275,7 +275,7 @@ app.post("/register",(req,res)=>{
       .render("register",{error: "Please enter email and password to register"});
   }
 
-  const doesUserExist = userLookUp(users,email);
+  const doesUserExist = getUserByEmail(users,email);
 
   if (doesUserExist) {
     return res
