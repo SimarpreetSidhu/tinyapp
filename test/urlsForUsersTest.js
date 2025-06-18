@@ -1,6 +1,5 @@
 const { assert } = require('chai');
-const { urlsForUser } = require('../helpers/urlsForUsers.js');
-
+const urlsForUser = require('../helpers/urlsForUsers.js');
 
 describe('urlsForUser', function() {
   it('should return urls that belong to the specified user', function() {
