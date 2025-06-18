@@ -20,14 +20,13 @@
   "homepage": "https://github.com/SimarpreetSidhu/tinyapp#readme",
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "cookie-parser": "^1.4.7",
     "cookie-session": "^2.1.0",
     "ejs": "^3.1.10",
     "express": "^4.17.1"
   },
   "devDependencies": {
     "chai": "^4.3.1",
-    "mocha": "^11.5.0",
+    "mocha": "8.4.0",
     "nodemon": "^3.1.10"
   }
 }
